@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        /* 密码输入区样式 */
+        #password-section {
+            transition: opacity 1.5s ease;
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 15, 30, 0.8);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .lock-icon {
+            font-size: 4rem;
+            color: #f8b500;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, #f8b500, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        
+        .password-input {
+            width: 300px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: #f8b500;
+            box-shadow: 0 0 15px rgba(248, 181, 0, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .submit-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(to right, #f8b500, #ff6b6b);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .hint {
+            margin-top: 30px;
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            min-height: 30px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .hint.show {
+            opacity: 1;
+        }
+        
+        /* 生日祝福区样式 - 初始隐藏 */
+        #birthday-section {
+            display: none;
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+        
+        /* 烟花容器 */
+        .fireworks-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #f8b500;
+            box-shadow: 0 0 10px #f8b500;
+        }
+        
+        .heart-firework {
+            position: absolute;
+            font-size: 24px;
+            color: #ff6b6b;
+            opacity: 0;
+        }
+        
+        .explosion {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            opacity: 0;
+        }
+        
+        .heart-explosion {
+            position: absolute;
+            font-size: 16px;
+            color: #ff6b6b;
+            opacity: 0;
+        }
+        
+        /* 文字祝福 - 始终显示在烟花上方 */
+        .birthday-message {
+            position: relative;
+            z-index: 10;
+            margin-top: 50px;
+            opacity: 0;
+            transition: opacity 2s ease;
+            background: rgba(10, 15, 30, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
+        .birthday-text {
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            line-height: 1.3;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .line1 {
+            background: linear-gradient(to right, #f8b500, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .crossed-out {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .crossed-out::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: -5%;
+            width: 110%;
+            height: 6px;
+            background: #ff6b6b;
+            transform: rotate(-15deg);
+            border-radius: 3px;
+        }
+        
+        .line2 {
+            font-size: 4rem;
+            color: #ff6b6b;
+            font-family: 'Brush Script MT', cursive;
+            margin-top: 20px;
+            letter-spacing: 3px;
+        }
+        
+        .hearts {
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin-top: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .birthday-text {
+                font-size: 2.5rem;
+            }
+            
+            .line2 {
+                font-size: 3rem;
+            }
+            
+            .password-input {
+                width: 250px;
+            }
+            
+            .birthday-message {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .birthday-text {
+                font-size: 2rem;
+            }
+            
+            .line2 {
+                font-size: 2.5rem;
+            }
+            
+            .password-input {
+                width: 220px;
+            }
+            
+            #password-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 密码输入区 -->
+        <section id="password-section">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="title">Happy Birthday</h1>
+            <p class="subtitle">请输入密码</p>
+            
+            <input type="password" id="password-input" class="password-input" placeholder="请输入密码">
+            <button id="submit-btn" class="submit-btn">确认</button>
+            
+            <div id="hint" class="hint">密码提示：猜猜我的手机密码是？</div>
+        </section>
+        
+        <!-- 生日祝福区 -->
+        <section id="birthday-section">
+            <div class="fireworks-container" id="fireworks"></div>
+            <div class="birthday-message" id="birthday-message">
+                <h1 class="birthday-text line1">
+                    生日快乐！<span class="crossed-out">小仓鼠</span>
+                </h1>
+                <h2 class="birthday-text line2">LOVE U</h2>
+                <div class="hearts">
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 页面元素
+        const passwordSection = document.getElementById('password-section');
+        const birthdaySection = document.getElementById('birthday-section');
+        const passwordInput = document.getElementById('password-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const hint = document.getElementById('hint');
+        const fireworksContainer = document.getElementById('fireworks');
+        const birthdayMessage = document.getElementById('birthday-message');
+        
+        // 正确密码
+        const correctPassword = "081223";
+        
+        // 烟花类型数组
+        const fireworkTypes = ['normal', 'heart', 'normal', 'normal', 'heart', 'normal'];
+        
+        // 提交按钮点击事件
+        submitBtn.addEventListener('click', checkPassword);
+        
+        // 输入框回车事件
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+        
+        // 检查密码函数
+        function checkPassword() {
+            const enteredPassword = passwordInput.value;
+            
+            if (enteredPassword === correctPassword) {
+                // 密码正确，执行淡出效果
+                passwordSection.style.opacity = '0';
+                
+                // 1.5秒后隐藏密码区，显示生日区并开始烟花动画
+                setTimeout(() => {
+                    passwordSection.style.display = 'none';
+                    birthdaySection.style.display = 'block';
+                    
+                    // 淡入生日区
+                    setTimeout(() => {
+                        birthdaySection.style.opacity = '1';
+                        
+                        // 立即开始烟花动画（持续不断）
+                        startFireworks();
+                        
+                        // 1秒后淡入文字祝福（置于烟花上方）
+                        setTimeout(() => {
+                            birthdayMessage.style.opacity = '1';
+                        }, 1000);
+                        
+                    }, 100);
+                    
+                }, 1500);
+                
+            } else {
+                // 密码错误，显示提示
+                hint.classList.add('show');
+                
+                // 清空输入框
+                passwordInput.value = '';
+                
+                // 添加抖动动画
+                passwordInput.style.animation = 'none';
+                setTimeout(() => {
+                    passwordInput.style.animation = 'shake 0.5s';
+                }, 10);
+                
+                // 3秒后隐藏提示
+                setTimeout(() => {
+                    hint.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // 抖动动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 烟花动画函数 - 持续不断
+        function startFireworks() {
+            // 立即创建几个烟花
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFirework();
+                }, i * 300);
+            }
+            
+            // 持续生成烟花 - 永久存在
+            setInterval(() => {
+                createFirework();
+            }, 800);
+            
+            // 额外添加一些随机烟花
+            setInterval(() => {
+                if (Math.random() > 0.5) {
+                    createFirework();
+                }
+            }, 500);
+        }
+        
+        function createFirework() {
+            // 随机选择烟花类型
+            const fireworkType = fireworkTypes[Math.floor(Math.random() * fireworkTypes.length)];
+            
+            if (fireworkType === 'heart') {
+                createHeartFirework();
+            } else {
+                createNormalFirework();
+            }
+        }
+        
+        function createNormalFirework() {
+            // 创建烟花上升部分
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            
+            // 随机位置
+            const startX = Math.random() * 100;
+            firework.style.left = `${startX}%`;
+            firework.style.bottom = '0';
+            
+            fireworksContainer.appendChild(firework);
+            
+            // 烟花颜色
+            const colors = ['#f8b500', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#f15bb5'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            firework.style.backgroundColor = color;
+            firework.style.boxShadow = `0 0 10px ${color}`;
+            
+            // 上升动画
+            const riseDuration = 1000 + Math.random() * 1000;
+            const riseHeight = 20 + Math.random() * 70;
+            
+            const riseAnimation = firework.animate([
+                { bottom: '0%', opacity: 1 },
+                { bottom: `${riseHeight}%`, opacity: 1 }
+            ], {
+                duration: riseDuration,
+                easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+            });
+            
+            // 上升结束后爆炸
+            riseAnimation.onfinish = () => {
+                // 移除上升的烟花
+                firework.remove();
+                
+                // 创建爆炸效果
+                createNormalExplosion(startX, riseHeight, color);
+            };
+        }
+        
+        function createHeartFirework() {
+            // 创建爱心烟花上升部分
+            const heartFirework = document.createElement('div');
+            heartFirework.className = 'heart-firework';
+            heartFirework.innerHTML = '<i class="fas fa-heart"></i>';
+            
+            // 随机位置
+            const startX = Math.random() * 100;
+            heartFirework.style.left = `${startX}%`;
+            heartFirework.style.bottom = '0';
+            
+            // 随机颜色
+            const heartColors = ['#ff6b6b', '#f15bb5', '#ff8fab', '#ff477e', '#ff2e63'];
+            const heartColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+            heartFirework.style.color = heartColor;
+            
+            fireworksContainer.appendChild(heartFirework);
+            
+            // 爱心上升动画
+            const riseDuration = 1200 + Math.random() * 1000;
+            const riseHeight = 25 + Math.random() * 65;
+            
+            const riseAnimation = heartFirework.animate([
+                { bottom: '0%', opacity: 0.8, transform: 'scale(0.5)' },
+                { bottom: `${riseHeight}%`, opacity: 1, transform: 'scale(1)' }
+            ], {
+                duration: riseDuration,
+                easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+            });
+            
+            // 上升结束后爆炸
+            riseAnimation.onfinish = () => {
+                // 移除上升的爱心
+                heartFirework.remove();
+                
+                // 创建爱心爆炸效果
+                createHeartExplosion(startX, riseHeight, heartColor);
+            };
+        }
+        
+        function createNormalExplosion(x, y, color) {
+            // 爆炸粒子数量
+            const particleCount = 25 + Math.floor(Math.random() * 25);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'explosion';
+                
+                // 设置粒子位置
+                particle.style.left = `${x}%`;
+                particle.style.top = `${100 - y}%`;
+                particle.style.backgroundColor = color;
+                particle.style.boxShadow = `0 0 8px ${color}`;
+                
+                fireworksContainer.appendChild(particle);
+                
+                // 随机角度和距离
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 15 + Math.random() * 35;
+                
+                // 粒子大小
+                const size = 3 + Math.random() * 5;
+                
+                // 爆炸动画
+                const explosionAnimation = particle.animate([
+                    { 
+                        width: '0px', 
+                        height: '0px', 
+                        opacity: 1,
+                        transform: 'translate(0, 0) scale(1)'
+                    },
+                    { 
+                        width: `${size}px`, 
+                        height: `${size}px`, 
+                        opacity: 1,
+                        transform: `translate(${Math.cos(angle) * distance}%, ${-Math.sin(angle) * distance}%) scale(1)`
+                    },
+                    { 
+                        width: '0px', 
+                        height: '0px', 
+                        opacity: 0,
+                        transform: `translate(${Math.cos(angle) * distance * 1.2}%, ${-Math.sin(angle) * distance * 1.2}%) scale(0.5)`
+                    }
+                ], {
+                    duration: 1000 + Math.random() * 800,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+                
+                // 动画结束后移除粒子
+                explosionAnimation.onfinish = () => {
+                    particle.remove();
+                };
+            }
+        }
+        
+        function createHeartExplosion(x, y, color) {
+            // 爱心爆炸粒子数量
+            const heartCount = 12 + Math.floor(Math.random() * 12);
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heartParticle = document.createElement('div');
+                heartParticle.className = 'heart-explosion';
+                heartParticle.innerHTML = '<i class="fas fa-heart"></i>';
+                
+                // 设置粒子位置
+                heartParticle.style.left = `${x}%`;
+                heartParticle.style.top = `${100 - y}%`;
+                heartParticle.style.color = color;
+                
+                fireworksContainer.appendChild(heartParticle);
+                
+                // 随机角度和距离
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 10 + Math.random() * 30;
+                
+                // 随机大小
+                const size = 0.8 + Math.random() * 1.2;
+                
+                // 爱心爆炸动画
+                const explosionAnimation = heartParticle.animate([
+                    { 
+                        opacity: 1,
+                        transform: 'translate(0, 0) scale(0.5)',
+                        fontSize: '16px'
+                    },
+                    { 
+                        opacity: 1,
+                        transform: `translate(${Math.cos(angle) * distance}%, ${-Math.sin(angle) * distance}%) scale(${size})`,
+                        fontSize: `${16 * size}px`
+                    },
+                    { 
+                        opacity: 0,
+                        transform: `translate(${Math.cos(angle) * distance * 1.3}%, ${-Math.sin(angle) * distance * 1.3}%) scale(0.3)`,
+                        fontSize: `${16 * 0.3}px`
+                    }
+                ], {
+                    duration: 1200 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+                
+                // 旋转动画
+                const rotateAnimation = heartParticle.animate([
+                    { transform: `translate(${Math.cos(angle) * distance}%, ${-Math.sin(angle) * distance}%) scale(${size}) rotate(0deg)` },
+                    { transform: `translate(${Math.cos(angle) * distance}%, ${-Math.sin(angle) * distance}%) scale(${size}) rotate(${Math.random() > 0.5 ? 360 : -360}deg)` }
+                ], {
+                    duration: 1200 + Math.random() * 1000,
+                    easing: 'linear'
+                });
+                
+                // 动画结束后移除爱心
+                explosionAnimation.onfinish = () => {
+                    heartParticle.remove();
+                };
+            }
+        }
+        
+        // 添加一些初始效果
+        window.addEventListener('DOMContentLoaded', () => {
+            passwordInput.focus();
+        });
+    </script>
+</body>
+  </html>
